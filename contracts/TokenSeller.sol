@@ -16,7 +16,6 @@ contract TokenSeller is Pausable, Destructible {
     using SafeMath for uint;
     event TokenSold(address recipient, uint eth, uint tokens);
     event SaleClosed();
-    event Halted(bool halted);
 
     HelloWorldToken public token; // Token contract
     WhiteList public whitelist; // Contract that contain list of eligible addresses
@@ -28,6 +27,7 @@ contract TokenSeller is Pausable, Destructible {
     uint public minToken = 1000; // Buyer must purchase Token MORE THAN OR EQUAL this amount
     uint public maxToken = 10000000; // Buyer must purchase Token LESS THAN OR EQUAL this amount
 
+    uint public rate = 1000; // 1000 Tokens per 1 ETH
     uint public start = 1504112400; // Timestamp of start date in seconds, from http://currentmillis.com/
     uint public duration = 31; // Duration of sale in days
  
@@ -94,7 +94,7 @@ contract TokenSeller is Pausable, Destructible {
     * @param value an ETH amount in wei, 1000000000000000000 wei = 1 ether
     */
     function exchange(uint value) internal returns (uint) {
-        uint base = 1000;                                                  // base price (1000 tokens / 1 ether)
+        uint base = rate;                                                  // base price (1000 tokens / 1 ether)
         uint bonus = 0;
         if (now > start && now < start.add(1 days)) {                      // during first date
             bonus = 20;                                                    // bonus 20%
@@ -105,8 +105,8 @@ contract TokenSeller is Pausable, Destructible {
         } else if (now > start.add(3 days) && now < start.add(4 days)) {   // during forth date
             bonus = 5;                                                     // bonus 5%
         }
-        uint rate = base.add(base.mul(bonus).div(100));                    // amount of tokens per 1 ether, plus bonus
-        uint amount = rate.mul(value).div(1 ether);                        // rate multiply value(wei), divided by 1 ether
+        uint actualRate = base.add(base.mul(bonus).div(100));                    // amount of tokens per 1 ether, plus bonus
+        uint amount = actualRate.mul(value).div(1 ether);                        // rate multiply value(wei), divided by 1 ether
         return amount;                                            
     }
   

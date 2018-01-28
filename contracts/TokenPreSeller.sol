@@ -16,7 +16,6 @@ contract TokenPreSeller is Pausable, Destructible {
     using SafeMath for uint;
     event TokenSold(address recipient, uint eth, uint tokens);
     event PreSaleClosed();
-    event Halted(bool halted);
 
     HelloWorldToken public token; // address of Token contract
     WhiteList public whitelist; // Contract that contain list of eligible addresses
