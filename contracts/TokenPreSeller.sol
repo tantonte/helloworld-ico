@@ -21,7 +21,7 @@ contract TokenPreSeller is Pausable, Destructible {
     WhiteList public whitelist; // Contract that contain list of eligible addresses
     address public wallet; // address of MultiSignatureWallet
 
-    uint public saleTarget = 30000000; // 30000000 : target for presale is 300Millions
+    uint public saleTarget = 300000000; // target for presale is 300 Millions
     uint public amountSold; // amount of tokens that is already sold to buyer
 
     uint public minToken = 1000; // Buyer must purchase Token MORE THAN this amount
@@ -61,16 +61,16 @@ contract TokenPreSeller is Pausable, Destructible {
     * to contract account to receive Tokens. This method also transfer 
     * received ETH to the owner.
     * @param recipient the recipient to receive tokens. 
+    * @param etherPaid amount received in wei: 1000000000000000000 wei = 1 ether 
     */
-    function sell(address recipient) targetNotReached saleIsOn whenNotPaused internal {
-        require(whitelist.isWhiteListed(recipient));        // recipient must be in whitelist to be able to buy token
-        uint etherPaid = msg.value;                         // amount received in wei: 1000000000000000000 wei = 1 ether
-        uint tokens = etherPaid.mul(rate).div(1 ether);     // calculate amount of token recipient going to received from ETH paid amount
-        require(isAmountValid(tokens));                     // check if amount of token can be transfer from this contract to recipient
-        require(token.transfer(recipient, tokens));         // transfer tokens from this contract to recipient
-        amountSold = amountSold.add(tokens);                // record amount sold
-        wallet.transfer(etherPaid);                         // transfer ETH paid by recipient to multisignature wallet
-        TokenSold(recipient, etherPaid, tokens);            // log event
+    function sell(address recipient, uint etherPaid) targetNotReached saleIsOn whenNotPaused internal {
+        require(whitelist.isWhiteListed(recipient));    // recipient must be in whitelist to be able to buy token
+        uint tokens = exchange(etherPaid);              // convert received ETH to Tokens
+        require(isAmountValid(tokens));                 // check if amount of token can be transfer from this contract to recipient
+        require(token.transfer(recipient, tokens));     // transfer tokens from this contract to recipient
+        amountSold = amountSold.add(tokens);            // record amount sold
+        wallet.transfer(etherPaid);                     // transfer ETH paid by recipient to multisignature wallet
+        TokenSold(recipient, etherPaid, tokens);        // log event
     }
 
     /**
@@ -84,6 +84,14 @@ contract TokenPreSeller is Pausable, Destructible {
         // AND
         // 'amount' must be more than or equal to minimun buy amount and less than or equal to maximun buy amount
         return saleTarget.sub(amountSold) >= amount && (amount >= minToken && amount <= maxToken);
+    }
+
+    /**
+    * @dev Get number of tokens corresponding to ETH received
+    * @param value an ETH amount in wei, 1000000000000000000 wei = 1 ether
+    */
+    function exchange(uint value) internal returns (uint) {
+        return value.mul(rate).div(1 ether); // calculate amount of token recipient going to received from ETH paid amount                                         
     }
 
     /**
@@ -101,7 +109,7 @@ contract TokenPreSeller is Pausable, Destructible {
     * the appropriate number of tokens for the msg.sender.
     */
     function() external payable {
-        sell(msg.sender);
+        sell(msg.sender, msg.value);
     }
 
 }

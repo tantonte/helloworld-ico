@@ -21,7 +21,7 @@ contract TokenSeller is Pausable, Destructible {
     WhiteList public whitelist; // Contract that contain list of eligible addresses
     address public wallet;
 
-    uint public saleTarget = 40000000; // 40000000 : target for public ICO is 40Millions
+    uint public saleTarget = 400000000; // target for public ICO is 400 Millions
     uint public amountSold; // Amount of tokens sold to buyer
 
     uint public minToken = 1000; // Buyer must purchase Token MORE THAN OR EQUAL this amount
@@ -65,10 +65,10 @@ contract TokenSeller is Pausable, Destructible {
     * to contract account to receive Tokens. This method also transfer 
     * received ETH to the owner.
     * @param recipient the recipient to receive tokens. 
+    * @param etherPaid amount received in wei: 1000000000000000000 wei = 1 ether 
     */
-    function sell(address recipient) targetNotReached saleIsOn whenNotPaused internal {
+    function sell(address recipient, uint etherPaid) targetNotReached saleIsOn whenNotPaused internal {
         require(whitelist.isWhiteListed(recipient));    // recipient must be in whitelist
-        uint etherPaid = msg.value;                     // msg.value is ETH paid by recipient
         uint tokens = exchange(etherPaid);              // convert received ETH to Tokens
         require(isAmountValid(tokens));                 // validate amount
         require(token.transfer(recipient, tokens));     // transfer Token from this contract to recipient
@@ -105,8 +105,8 @@ contract TokenSeller is Pausable, Destructible {
         } else if (now > start.add(3 days) && now < start.add(4 days)) {   // during forth date
             bonus = 5;                                                     // bonus 5%
         }
-        uint actualRate = base.add(base.mul(bonus).div(100));                    // amount of tokens per 1 ether, plus bonus
-        uint amount = actualRate.mul(value).div(1 ether);                        // rate multiply value(wei), divided by 1 ether
+        uint actualRate = base.add(base.mul(bonus).div(100));              // amount of tokens(plus bonus) per 1 ether
+        uint amount = actualRate.mul(value).div(1 ether);                  // rate multiplied by value(in wei) and divided by 1 ether
         return amount;                                            
     }
   
@@ -125,7 +125,7 @@ contract TokenSeller is Pausable, Destructible {
     * the appropriate number of tokens for the msg.sender.
     */
     function() external payable {
-        sell(msg.sender); // give tokens to msg.sender
+        sell(msg.sender, msg.value); // give tokens to msg.sender
     }
 
 }
