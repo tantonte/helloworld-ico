@@ -80,10 +80,9 @@ contract TokenPreSeller is Pausable, Destructible {
     * @param amount : amount of tokens that this contract is going to transfer to buyer
     */
     function isAmountValid(uint amount) internal returns (bool) {
-        // the remaining token in this contract must be more than or equal to 'amount'
-        // AND
-        // 'amount' must be more than or equal to minimun buy amount and less than or equal to maximun buy amount
-        return saleTarget.sub(amountSold) >= amount && (amount >= minToken && amount <= maxToken);
+        bool isEnoungh = saleTarget.sub(amountSold) >= amount;          // this contract still have enough tokens left to sell
+        bool isInRange = (amount >= minToken && amount <= maxToken);    // amount is higher than minimun and lower than maximun
+        return isEnoungh && isInRange;                                  // both condition must be true
     }
 
     /**
