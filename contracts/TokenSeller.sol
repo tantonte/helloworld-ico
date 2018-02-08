@@ -19,7 +19,6 @@ contract TokenSeller is Pausable, Destructible {
 
     HelloWorldToken public token; // Token contract
     WhiteList public whitelist; // Contract that contain list of eligible addresses
-    address public wallet;
 
     uint public saleTarget = 400000000; // target for public ICO is 400 Millions
     uint public amountSold; // Amount of tokens sold to buyer
@@ -57,7 +56,6 @@ contract TokenSeller is Pausable, Destructible {
     function TokenSeller(address _token, address _whitelist) {
         token = HelloWorldToken(_token);
         whitelist = WhiteList(_whitelist);
-        wallet = owner;
     }
 
     /**
@@ -73,7 +71,7 @@ contract TokenSeller is Pausable, Destructible {
         require(isAmountValid(tokens));                 // validate amount
         require(token.transfer(recipient, tokens));     // transfer Token from this contract to recipient
         amountSold = amountSold.add(tokens);            // record amount sold
-        wallet.transfer(etherPaid);                     // transfer received ETH to MultiSignatureWallet
+        owner.transfer(etherPaid);                     // transfer received ETH to MultiSignatureWallet
         TokenSold(recipient, etherPaid, tokens);        // log event
     }
 
