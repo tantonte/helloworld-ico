@@ -27,7 +27,7 @@ contract TokenSeller is Pausable, Destructible {
     uint public maxToken = 10000000; // Buyer must purchase Token LESS THAN OR EQUAL this amount
 
     uint public rate = 1000; // 1000 Tokens per 1 ETH
-    uint public start = 1514764800; // Timestamp of start date in seconds, from http://currentmillis.com/
+    uint public start = 1517443200; // Timestamp of start date in seconds, from http://currentmillis.com/
     uint public duration = 31; // Duration of sale in days
  
     /* now (uint): alias of block.timestamp which is the current block timestamp as seconds since unix epoch */
